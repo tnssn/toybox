@@ -49,7 +49,9 @@ export default{
     <v-btn @click="getTimeline">タイムラインを取得！</v-btn>
     <div> 
         <div v-for="(item, key) in timeline" :key="key">
-            <img :src="item.user.avatarUrl" style="width: 100px;"/>{{ item.user.name }}
+            <!-- <img :src="item.user.avatarUrl" style="width: 100px;"/> -->
+            <v-avatar  size="x-large"><img :src="item.user.avatarUrl" style="width: 64px;"/></v-avatar>
+            {{ item.user.name }}
             <div>
                 {{ item.text }}
             </div>
