@@ -47,15 +47,21 @@ export default{
         <p>{{ misuki.avatarUrl }}</p>
     </div>
     <v-btn @click="getTimeline">タイムラインを取得！</v-btn>
-    <div> 
-        <div v-for="(item, key) in timeline" :key="key">
+    <div class="timeline-no-soto"> 
+        <v-list v-for="(item, key) in timeline" :key="key">
             <!-- <img :src="item.user.avatarUrl" style="width: 100px;"/> -->
-            <v-avatar  size="x-large"><img :src="item.user.avatarUrl" style="width: 64px;"/></v-avatar>
+            <v-avatar  size="x-large"><v-img :src="item.user.avatarUrl"/></v-avatar>
             {{ item.user.name }}
             <div>
                 {{ item.text }}
             </div>
-        </div>
+        </v-list>
     </div>
     <pre>{{ timeline }}</pre>
 </template>
+
+<style scoped>
+.timeline-no-soto{
+    margin: 1em 0;
+}
+</style>
