@@ -1,5 +1,8 @@
 <script>
 export default{
+    mounted(){
+        console.log(import.meta.env.VITE_MISSKEY_TOKEN)
+    },
     data() {
         return {
             misuki:{},
@@ -14,10 +17,9 @@ export default{
                 },
                 method : "POST",
                 body : JSON.stringify({
-                    i : "yRbr21ta6LdjewCy6n5fzNbMPcbZo71d",
+                    i : import.meta.env.VITE_MISSKEY_TOKEN,
                 })
             })).json();
-            console.log(this.misuki)
         },
         async getTimeline() {
             this.timeline = await (await fetch("https://misskey.systems/api/notes/local-timeline", {
@@ -36,7 +38,7 @@ export default{
 }
 </script>
 <template>
-    <button @click="mi">わたしの情報</button>
+    <v-btn @click="mi">わたしの情報</v-btn>
     <div>
         <p>みすてむずのわたしの情報</p>
         <img :src="misuki.avatarUrl" />
@@ -44,7 +46,7 @@ export default{
         <p>{{ misuki.name }}</p>
         <p>{{ misuki.avatarUrl }}</p>
     </div>
-    <button @click="getTimeline">タイムラインを取得！</button>
+    <v-btn @click="getTimeline">タイムラインを取得！</v-btn>
     <div> 
         <div v-for="(item, key) in timeline" :key="key">
             <img :src="item.user.avatarUrl" style="width: 100px;"/>{{ item.user.name }}

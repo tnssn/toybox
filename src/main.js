@@ -6,6 +6,12 @@ import { createRouter, createWebHashHistory } from "vue-router"
 import MainComponent from "./pages/index.vue"
 import AboutComponent from "./pages/about.vue"
 import miComponent from "./pages/mi.vue"
+// Vuetify
+import 'vuetify/styles'
+import { createVuetify } from 'vuetify'
+import * as components from 'vuetify/components'
+import * as directives from 'vuetify/directives'
+// !Vuetify
 
 const Home = { template: '<div>Home</div>' }
 const About = { template: '<div>About</div>' }
@@ -22,4 +28,11 @@ const router = createRouter({
   routes,
 })
 
-createApp(App).use(router).mount("#app")
+// Vuetify
+const vuetify = createVuetify({
+  components,
+  directives,
+})
+// Vuetify
+
+createApp(App).use(vuetify).use(router).mount("#app")
