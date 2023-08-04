@@ -1,4 +1,6 @@
 <script>
+// misskey
+import * as Misskey from 'misskey-js'
 export default{
     mounted(){
         console.log(import.meta.env.VITE_MISSKEY_TOKEN)
@@ -7,10 +9,20 @@ export default{
         return {
             misuki:{},
             timeline:{},
+            meta: {},
+            cli: new Misskey.api.APIClient({
+            origin: "https://misskey.systems",
+            credential: import.meta.env.VITE_MISSKEY_TOKEN,
+            }),
+            postContent: "",
         }
+    },
+    async mounted() {
+    this.meta = await this.cli.request("i", { detail: true });
     },
     methods: {
         async mi() {
+            
             this.misuki = await (await fetch("https://misskey.systems/api/i", {
                 headers: {
                     'Content-Type': 'application/json'
@@ -28,12 +40,17 @@ export default{
                 },
                 method : "POST",
                 body : JSON.stringify({
-                    i : "yRbr21ta6LdjewCy6n5fzNbMPcbZo71d",
+                    i : import.meta.env.VITE_MISSKEY_TOKEN,
                 })
             })).json();
             console.log("timeline")
+        },        
+        MisskeyPostTest() {
+            console.log(this.postContent)
+        },
+        async MisskeyPost() {
+        await this.cli.request("notes/create", {text:this.postContent});
         }
-        
     }
 }
 </script>
@@ -46,18 +63,26 @@ export default{
         <p>{{ misuki.name }}</p>
         <p>{{ misuki.avatarUrl }}</p>
     </div>
+
+
+    <v-text-field variant="outlined" v-model="postContent"></v-text-field>
+    <v-btn @click="MisskeyPost" class="bg-blue-accent-1">ぽすとみすきー！</v-btn>
+
+
     <v-btn @click="getTimeline">タイムラインを取得！</v-btn>
     <div class="timeline-no-soto"> 
         <v-list v-for="(item, key) in timeline" :key="key">
             <!-- <img :src="item.user.avatarUrl" style="width: 100px;"/> -->
-            <v-avatar  size="x-large"><v-img :src="item.user.avatarUrl"/></v-avatar>
+            <v-avatar  size="x-large">
+                <v-img :src="item.user.avatarUrl"/>
+            </v-avatar>
             {{ item.user.name }}
             <div>
                 {{ item.text }}
             </div>
         </v-list>
     </div>
-    <pre>{{ timeline }}</pre>
+    <!-- <pre>{{ timeline }}</pre> -->
 </template>
 
 <style scoped>
