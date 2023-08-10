@@ -23,7 +23,6 @@ export default{
     },
     methods: {
         async mi() {
-            
             this.misuki = await (await fetch("https://misskey.systems/api/i", {
                 headers: {
                     'Content-Type': 'application/json'
@@ -35,22 +34,11 @@ export default{
             })).json();
         },
         async getTimeline() {
-            this.timeline = await (await fetch("https://misskey.systems/api/notes/local-timeline", {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                method : "POST",
-                body : JSON.stringify({
-                    i : import.meta.env.VITE_MISSKEY_TOKEN,
-                })
-            })).json();
-            console.log("timeline")
-        },        
-        MisskeyPostTest() {
-            console.log(this.postContent)
-        },
+            this.timeline = await this.cli.request("notes/local-timeline");
+            console.log(this.timeline)
+        }, 
         async MisskeyPost() {
-        await this.cli.request("notes/create", {text:this.postContent});
+            await this.cli.request("notes/create", {text:this.postContent});
         }
     }
 }
