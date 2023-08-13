@@ -45,22 +45,6 @@ export default{
     <hr>
 
     <v-btn @click="getFiles">ふぁいるをとってみる</v-btn>
-    <!-- {{ files }} -->
-    <!-- 
-    <v-card 
-     variant="outlined"
-     v-for="file in files" 
-     :key="file" 
-      class="mx-auto">
-        <v-img 
-         :src="file.thumbnailUrl"/>
-        <v-card-title>
-            {{ file.name }}
-        </v-card-title>
-    </v-card>
-    ほげえ -->
-
-
     <v-container fluid>
       <v-row dense>
         <v-col 
