@@ -15,6 +15,7 @@ export default{
             timeline:{},
             files:{},
             postContent: "",
+            uploadImage:{},
         }
     },
     async mounted() {
@@ -26,12 +27,33 @@ export default{
             console.log(this.timeline)
         }, 
         async MisskeyPost() {
-            await this.cli.request("notes/create", {text:this.postContent});
+            await this.cli.request("notes/create", {
+                text:this.postContent,
+            });
+            this.postContent = [];
         },
         async getFiles() {
-            this.files = await this.cli.request("drive/files", {limit:12});
+            this.files = await this.cli.request("drive/files", {limit:4});
             console.log(this.files)
-        }
+        },
+        /*
+        async setFile() {
+            // ファイルのアップロードのところ //
+            this.uploadImage = file.id
+            console.log(this.uploadImage)
+        },
+        */
+        // カンニングしてくっつけた添付を生でやるやつ //
+       async uploadFile(){
+        const params = new FormData();
+        params.append("file", )
+            const responce = await fetch(`${this.origin}/api/drive/files/create`, {
+                method: 'POST',
+                body:params,
+                credentials: 'omit',
+                cache: 'no-cache',
+            })
+        },
     }
 }
 </script>
@@ -44,6 +66,15 @@ export default{
     </div>
     <hr>
 
+    
+    <v-text-field variant="outlined" v-model="postContent"></v-text-field>
+    <!--ボタンでくっつけるのはあとでやる <input type="file" @change="setFile" /> -->
+    {{ uploadImage }}
+    <v-btn @click="MisskeyPost" class="bg-blue-accent-1">Note</v-btn>
+
+<hr>
+
+
     <v-btn @click="getFiles">ふぁいるをとってみる</v-btn>
     <v-container fluid>
       <v-row dense>
@@ -51,7 +82,7 @@ export default{
         v-for="file in files" 
         :key="file" 
         >
-          <v-card>
+          <v-card @click="this.uploadImage = file.id">
             <v-img
               :src="file.thumbnailUrl"
               class="align-end"
@@ -65,13 +96,9 @@ export default{
         </v-col>
       </v-row>
     </v-container>
+    {{ files }}
 
     <hr>
-    <v-text-field variant="outlined" v-model="postContent"></v-text-field>
-    <v-btn @click="MisskeyPost" class="bg-blue-accent-1">ぽすとみすきー！</v-btn>
-
-    <hr>
-
     <v-btn @click="getTimeline">タイムラインを取得！</v-btn>
     <div class="timeline-no-soto"> 
         <v-list v-for="(item, key) in timeline" :key="key">
