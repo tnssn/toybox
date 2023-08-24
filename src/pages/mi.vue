@@ -15,44 +15,66 @@ export default{
             timeline:{},
             files:{},
             postContent: "",
-            uploadImage:{},
+            uploadImage:[],
+            file:{},
         }
     },
     async mounted() {
     this.meta = await this.cli.request("i", { detail: true });
     },
     methods: {
+        /* タイムラインの取得 */
         async getTimeline() {
             this.timeline = await this.cli.request("notes/local-timeline",{limit: 20});
             console.log(this.timeline)
         }, 
+
+        /* 投稿 */
         async MisskeyPost() {
             await this.cli.request("notes/create", {
                 text:this.postContent,
+                fileIds: this.uploadImage
             });
             this.postContent = [];
+            this.uploadImage = [];
         },
+
+        /* ドライブの取得 */ 
         async getFiles() {
-            this.files = await this.cli.request("drive/files", {limit:4});
+            this.files = await this.cli.request("drive/files", {limit:12});
             console.log(this.files)
         },
-        /*
-        async setFile() {
-            // ファイルのアップロードのところ //
-            this.uploadImage = file.id
+
+        /* ドライブからファイルを投稿にくっつける */
+        setFile(file) {
+            this.uploadImage.push( file.id )
             console.log(this.uploadImage)
         },
-        */
-        // カンニングしてくっつけた添付を生でやるやつ //
+
+        /* ファイルをアップロードして投稿 */
+        /* 中村さんのを今コピペして持ってきただけだから書き換える！！！！！！ */
        async uploadFile(){
+        // ファイル投稿フォーム作成して選択したファイルをparams.fileにセット
         const params = new FormData();
-        params.append("file", )
-            const responce = await fetch(`${this.origin}/api/drive/files/create`, {
-                method: 'POST',
-                body:params,
-                credentials: 'omit',
-                cache: 'no-cache',
-            })
+        params.append("file", this.$refs.image.files[0]);
+
+        // その他のパラメータをセット
+        params.append("i", import.meta.env.VITE_MISSKEY_TOKEN);
+        params.append("force", this.$refs.image.files[0]);
+        params.append("name", this.$refs.image.files[0].name);
+
+        console.log(this.params)
+        // POSTでfetch
+        const response = await fetch(`${this.cli.origin}/api/drive/files/create`, {
+            method: 'POST',
+            body: params,
+            credentials: 'omit',
+            cache: 'no-cache',
+        })
+        // ファイルをドライブにアップロードじゃ！
+        this.upFile = await response.json();
+        // 投稿を押したら画像も一緒に投稿できるように戻ってきたファイルIDをファイルリストに追加しておく
+        this.upFileList.push(this.upFile.id);
         },
     }
 }
@@ -66,11 +88,11 @@ export default{
     </div>
     <hr>
 
-    
-    <v-text-field variant="outlined" v-model="postContent"></v-text-field>
-    <!--ボタンでくっつけるのはあとでやる <input type="file" @change="setFile" /> -->
-    {{ uploadImage }}
-    <v-btn @click="MisskeyPost" class="bg-blue-accent-1">Note</v-btn>
+        <v-text-field variant="outlined" v-model="postContent"></v-text-field>
+        <input type="file" @change="uploadFile" />
+        <br>
+        添付画像id：{{ uploadImage }}
+        <v-btn @click="MisskeyPost" class="bg-blue-accent-1">Note</v-btn>
 
 <hr>
 
@@ -82,7 +104,7 @@ export default{
         v-for="file in files" 
         :key="file" 
         >
-          <v-card @click="this.uploadImage = file.id">
+          <v-card @click="setFile(file)">
             <v-img
               :src="file.thumbnailUrl"
               class="align-end"
