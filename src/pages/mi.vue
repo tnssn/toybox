@@ -13,9 +13,9 @@ export default{
             }),
             meta: {},
             timeline:{},
-            files:{},
+            DriveFiles:{},
             postContent: "",
-            uploadImage:[],
+            setImage:[],
             file:{},
         }
     },
@@ -33,22 +33,22 @@ export default{
         async MisskeyPost() {
             await this.cli.request("notes/create", {
                 text:this.postContent,
-                fileIds: this.uploadImage
+                fileIds: this.setImage
             });
             this.postContent = [];
-            this.uploadImage = [];
+            this.setImage = [];
         },
 
         /* ドライブの取得 */ 
         async getFiles() {
-            this.files = await this.cli.request("drive/files", {limit:12});
-            console.log(this.files)
+            this.DriveFiles = await this.cli.request("drive/files", {limit:12});
+            console.log(this.DriveFiles)
         },
 
         /* ドライブからファイルを投稿にくっつける */
         setFile(file) {
-            this.uploadImage.push( file.id )
-            console.log(this.uploadImage)
+            this.setImage.push( file.id )
+            console.log(this.setImage)
         },
 
         /* ファイルをアップロードして投稿 */
@@ -56,6 +56,7 @@ export default{
        async uploadFile(){
         // ファイル投稿フォーム作成して選択したファイルをparams.fileにセット
         const params = new FormData();
+
         params.append("file", this.$refs.image.files[0]);
 
         // その他のパラメータをセット
@@ -63,7 +64,6 @@ export default{
         params.append("force", this.$refs.image.files[0]);
         params.append("name", this.$refs.image.files[0].name);
 
-        console.log(this.params)
         // POSTでfetch
         const response = await fetch(`${this.cli.origin}/api/drive/files/create`, {
             method: 'POST',
@@ -71,10 +71,12 @@ export default{
             credentials: 'omit',
             cache: 'no-cache',
         })
-        // ファイルをドライブにアップロードじゃ！
-        this.upFile = await response.json();
-        // 投稿を押したら画像も一緒に投稿できるように戻ってきたファイルIDをファイルリストに追加しておく
-        this.upFileList.push(this.upFile.id);
+
+        this.image = await response.json();
+
+        console.log(this.image)
+        // 投稿を押したら画像も一緒に投稿できるように戻ってきたファイルIDをリストに追加しておく
+        this.setImage.push(this.image.id);
         },
     }
 }
@@ -89,9 +91,9 @@ export default{
     <hr>
 
         <v-text-field variant="outlined" v-model="postContent"></v-text-field>
-        <input type="file" @change="uploadFile" />
+        <input type="file" @change="uploadFile" ref="image" />
         <br>
-        添付画像id：{{ uploadImage }}
+        添付画像id：{{ setImage }}
         <v-btn @click="MisskeyPost" class="bg-blue-accent-1">Note</v-btn>
 
 <hr>
@@ -101,7 +103,7 @@ export default{
     <v-container fluid>
       <v-row dense>
         <v-col 
-        v-for="file in files" 
+        v-for="file in DriveFiles" 
         :key="file" 
         >
           <v-card @click="setFile(file)">
@@ -118,7 +120,7 @@ export default{
         </v-col>
       </v-row>
     </v-container>
-    {{ files }}
+    {{ DriveFiles }}
 
     <hr>
     <v-btn @click="getTimeline">タイムラインを取得！</v-btn>
